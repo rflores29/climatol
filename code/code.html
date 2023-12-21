@@ -106,7 +106,112 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Climatol es un paquete en lenguaje R desarrollado por Jose A. Guijarro. Permite el trabajo de homogeneización, control de calidad y relleno de datos ausentes para series climáticas. Para revisar guías y tutoriales ingresar a <a href="https://www.climatol.eu/" class="uri">https://www.climatol.eu/</a></p>
 <section id="data-diaria" class="level2">
 <h2 class="anchored" data-anchor-id="data-diaria">Data Diaria</h2>
-<p>Iniciamos limpiando el <em>environment</em> e instalando el paquete <code>climatol</code>.</p>
+<p>Instalamos el paquete <code>climatol</code> y procedemos a preparar los archivos con data diaria a fin de adecuarlos al formato que lee el paquete. Para ello, empleamos la función <code>daily2climatol</code>. Los principales <em>inputs</em> a considerar:</p>
+<ul>
+<li><code>stfile</code>: Nombre del archivo <strong>*.csv</strong> con la información de las estaciones y data a recopilar.</li>
+</ul>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">FILE_NAME</th>
+<th style="text-align: center;">LONG</th>
+<th style="text-align: center;">LAT</th>
+<th style="text-align: center;">ALT</th>
+<th style="text-align: center;">ID</th>
+<th style="text-align: center;">STAT_NAME</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">P001-Jauja.csv</td>
+<td style="text-align: center;">-75.4744</td>
+<td style="text-align: center;">-11.7836</td>
+<td style="text-align: center;">3352</td>
+<td style="text-align: center;">p001</td>
+<td style="text-align: center;">Jauja</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">P002-Ingenio.csv</td>
+<td style="text-align: center;">-75.2558</td>
+<td style="text-align: center;">-11.8794</td>
+<td style="text-align: center;">3373</td>
+<td style="text-align: center;">p002</td>
+<td style="text-align: center;">Ingenio</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">P003-Ricran.csv</td>
+<td style="text-align: center;">-75.5327</td>
+<td style="text-align: center;">-11.5561</td>
+<td style="text-align: center;">3674</td>
+<td style="text-align: center;">p003</td>
+<td style="text-align: center;">Ricrán</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">P004-Santa_Ana.csv</td>
+<td style="text-align: center;">-75.2215</td>
+<td style="text-align: center;">-12.0096</td>
+<td style="text-align: center;">3293</td>
+<td style="text-align: center;">p004</td>
+<td style="text-align: center;">Santa_Ana</td>
+</tr>
+</tbody>
+</table>
+<p>Considerar que en la carpeta de trabajo debemos tener los archivos <strong>*.csv</strong> con la información de las estaciones. Estos archivos deben seguir la siguiente configuración:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Year</th>
+<th style="text-align: center;">Month</th>
+<th style="text-align: center;">Day</th>
+<th style="text-align: center;">Prec</th>
+<th style="text-align: center;">Tmax</th>
+<th style="text-align: center;">Tmin</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1986</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">20.8</td>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1986</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">4.0</td>
+<td style="text-align: center;">14</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1986</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0.6</td>
+<td style="text-align: center;">13</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1986</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">3.2</td>
+<td style="text-align: center;">13</td>
+<td style="text-align: center;">2</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><code>stcol</code>:</p></li>
+<li><p><code>datcol</code>:</p></li>
+<li><p><code>varcli</code>:</p></li>
+<li><p><code>anyi</code> y <code>anyf</code>:</p></li>
+<li><p><code>mindat</code>:</p></li>
+<li><p><code>na.strings</code>:</p></li>
+<li><p><code>header</code>:</p></li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">installed.packages</span>(<span class="st">"climatol"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -115,11 +220,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
      Enhances License License_is_FOSS License_restricts_use OS_type Archs
      MD5sum NeedsCompilation Built</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"climatol"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'climatol' was built under R version 4.3.1</code></pre>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"climatol"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">daily2climatol</span>(<span class="st">"1.Stations.csv"</span>,<span class="at">stcol =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,<span class="at">datcol =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">varcli =</span> <span class="st">"RR"</span>, <span class="at">anyi =</span> <span class="dv">1986</span>, <span class="at">anyf =</span> <span class="dv">2017</span>, <span class="at">mindat =</span> <span class="dv">365</span>, <span class="at">sep =</span> <span class="st">","</span>, <span class="at">dec =</span> <span class="st">"."</span>, <span class="at">na.strings =</span> <span class="st">"NA"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>11688 days between 1986-01-01 and 2017-12-31
+
+Creating RR input files for Climatol from daily files...:
+  1 P001-Jauja.csv
+  2 P002-Ingenio.csv
+  3 P003-Ricran.csv
+  4 P004-Santa_Ana.csv
+
+Data saved to file RR_1986-2017.dat :
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+  0.000   0.000   0.000   1.913   2.100  54.000    5668 
+
+Station coordinates and names saved to file RR_1986-2017.est :
+    X (lon)          Y (lat)          Z (elev)        Code          
+ Min.   :-75.53   Min.   :-12.01   Min.   :3293   Length:4          
+ 1st Qu.:-75.49   1st Qu.:-11.91   1st Qu.:3337   Class :character  
+ Median :-75.37   Median :-11.83   Median :3362   Mode  :character  
+ Mean   :-75.37   Mean   :-11.81   Mean   :3423                     
+ 3rd Qu.:-75.25   3rd Qu.:-11.73   3rd Qu.:3448                     
+ Max.   :-75.22   Max.   :-11.56   Max.   :3674                     
+     Name          
+ Length:4          
+ Class :character  
+ Mode  :character  
+                   
+                   
+                   </code></pre>
 </div>
 </div>
+<p>Considera que en los archivos</p>
 </section>
 </section>
 

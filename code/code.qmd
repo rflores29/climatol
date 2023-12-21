@@ -9,10 +9,45 @@ Climatol es un paquete en lenguaje R desarrollado por Jose A. Guijarro. Permite 
 
 ## Data Diaria
 
-Iniciamos limpiando el *environment* e instalando el paquete `climatol`.
+Instalamos el paquete `climatol` y procedemos a preparar los archivos con data diaria a fin de adecuarlos al formato que lee el paquete. Para ello, empleamos la función `daily2climatol`. Los principales *inputs* a considerar:
+
+-   `stfile`: Nombre del archivo **\*.csv** con la información de las estaciones y data a recopilar.
+
+|     FILE_NAME      |   LONG   |   LAT    | ALT  |  ID  | STAT_NAME |
+|:------------------:|:--------:|:--------:|:----:|:----:|:---------:|
+|   P001-Jauja.csv   | -75.4744 | -11.7836 | 3352 | p001 |   Jauja   |
+|  P002-Ingenio.csv  | -75.2558 | -11.8794 | 3373 | p002 |  Ingenio  |
+|  P003-Ricran.csv   | -75.5327 | -11.5561 | 3674 | p003 |  Ricrán   |
+| P004-Santa_Ana.csv | -75.2215 | -12.0096 | 3293 | p004 | Santa_Ana |
+
+Considerar que en la carpeta de trabajo debemos tener los archivos **\*.csv** con la información de las estaciones. Estos archivos deben seguir la siguiente configuración:
+
+| Year | Month | Day | Prec | Tmax | Tmin |
+|:----:|:-----:|:---:|:----:|:----:|:----:|
+| 1986 |   1   |  1  | 20.8 |  12  |  2   |
+| 1986 |   1   |  2  | 4.0  |  14  |  5   |
+| 1986 |   1   |  3  | 0.6  |  13  |  3   |
+| 1986 |   1   |  4  | 3.2  |  13  |  2   |
+
+-   `stcol`:
+
+-   `datcol`:
+
+-   `varcli`:
+
+-   `anyi` y `anyf`:
+
+-   `mindat`:
+
+-   `na.strings`:
+
+-   `header`:
 
 ```{r}
 rm(list = ls())
 installed.packages("climatol")
-library("climatol")
+pacman::p_load("climatol")
+daily2climatol("1.Stations.csv",stcol = 1:6,datcol = 1:4, varcli = "RR", anyi = 1986, anyf = 2017, mindat = 365, sep = ",", dec = ".", na.strings = "NA", header = TRUE)
 ```
+
+Considera que en los archivos
