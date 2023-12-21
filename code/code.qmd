@@ -1,0 +1,18 @@
+---
+title: "Homogenizacion with Climatol"
+author: "Ricardo Flores"
+---
+
+# Climatol
+
+Climatol es un paquete en lenguaje R desarrollado por Jose A. Guijarro. Permite el trabajo de homogeneización, control de calidad y relleno de datos ausentes para series climáticas. Para revisar guías y tutoriales ingresar a <https://www.climatol.eu/>
+
+## Data Diaria
+
+Iniciamos limpiando el *environment* e instalando el paquete `climatol`.
+
+```{r}
+rm(list = ls())
+installed.packages("climatol")
+library("climatol")
+```
