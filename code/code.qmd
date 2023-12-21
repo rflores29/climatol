@@ -76,4 +76,26 @@ dd2m(varcli = "RR",anyi = 1986, anyf = 2017, ndec = 1, valm = 1, namax = 30, na.
 ## valm: indica cómo vamos a realizar la agrupación mensual. 1: Suma; 2: Promedio; 3: Máximo; 4: Mínimo; 5: Desviación estándar.
 :::
 
-\# Aplicamos la homogeneización a la data mensual acumulada
+Aplicamos la homogeneización a la data mensual acumulada
+
+```{r}
+homogen('RR-m',1986,2017,std=2, inht=20,annual="total")
+```
+
+Luego, con el procesamiento previo, aplicamos la homogeneización a los datos diarios
+
+```{r}
+homogen('RR',1986,2017,annual="total", metad = TRUE)
+```
+
+Debemos revisar el archivo "\*\*\*\_out.csv" para identificar aquellos valores identificados como atípicos pero que se considerarían correctos. En base a ello, volveremos a correr el código definiendo un umbral de desviaciones estándar que permita utilizar o descartar los valores
+
+```{r}
+homogen('RR',1986,2017,annual="total", metad = TRUE, dz.max = 8)
+```
+
+Exportando resultados en formato **\*.csv** empleando el comando `dahstat`. Esto generará un archivo "Var_anyi-anyf_series.csv"
+
+```{r}
+dahstat("RR",1986, 2017,stat = "series")
+```
