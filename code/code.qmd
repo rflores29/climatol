@@ -1,6 +1,7 @@
 ---
-title: "Homogenizacion with Climatol"
+title: "Homogenizacion con Climatol"
 author: "Ricardo Flores"
+warning: TRUE
 ---
 
 # Climatol
@@ -11,7 +12,7 @@ Climatol es un paquete en lenguaje R desarrollado por Jose A. Guijarro. Permite 
 
 Instalamos el paquete `climatol` y procedemos a preparar los archivos con data diaria a fin de adecuarlos al formato que lee el paquete. Para ello, empleamos la función `daily2climatol`. Los principales *inputs* a considerar:
 
--   `stfile`: Nombre del archivo **\*.csv** con la información de las estaciones y data a recopilar.
+-   `stfile`: nombre del archivo **\*.csv** con la información de las estaciones y data a recopilar.
 
 |     FILE_NAME      |   LONG   |   LAT    | ALT  |  ID  | STAT_NAME |
 |:------------------:|:--------:|:--------:|:----:|:----:|:---------:|
@@ -29,25 +30,50 @@ Considerar que en la carpeta de trabajo debemos tener los archivos **\*.csv** co
 | 1986 |   1   |  3  | 0.6  |  13  |  3   |
 | 1986 |   1   |  4  | 3.2  |  13  |  2   |
 
--   `stcol`:
+::: callout-warning
+## Alerta: Las tablas deben contemplar años completos, es decir, iniciar el 01 de enero y culminar el 31 de diciembre.
+:::
 
--   `datcol`:
+::: callout-note
+## Nota: En caso de sólo desear trabajar con una variable, no es necesario que las otras columnas de datos esté completa
+:::
 
--   `varcli`:
+-   `stcol`: número de las columnas en `stfile` que contienen Nombre de archivo, Longituf, Latitud, Altitud, ID, Nombre de la estación. En caso estén ordenadas de forma distinta, debe ingresarse a manera de vector a fin que se reconozca el campo requerido.
 
--   `anyi` y `anyf`:
+-   `datcol`: número de las columnas en los archivos de las estaciones (P001-Jauja.csv ; P002-Ingenio.csv ; etc.) que contiene el Año, Mes, Día, Valor Medido. En caso estén ordenadas de forma distinta, debe ingresarse a manera de vector a fin que se reconozca el campo requerido.
 
--   `mindat`:
+-   `varcli`: nombre corto de la variable climática a analizar. RR: Precipitación, TX: Temperatura Máxima, TM: Temperatura Mínima.
 
--   `na.strings`:
+-   `anyi` y `anyf`: año de inicio y final de las series a analizar.
 
--   `header`:
+-   `mindat`: mínimo número de datos requeridos por estación. Para datos diarios es 365 y para datos mensuales, 12.
+
+-   `na.strings`: string que representa valores perdidos. Por defecto se usa `"NA"`, y puede ser modificado acorde a la data ingresada.
+
+-   `header`: variable booleana para indicar la presencia (`TRUE`) o ausencia (`FALSE`)de encabezados.
 
 ```{r}
 rm(list = ls())
-installed.packages("climatol")
+# En caso sea la primera vez trabajando con el paquete, proceder con su instalación
+# installed.packages("climatol")
 pacman::p_load("climatol")
 daily2climatol("1.Stations.csv",stcol = 1:6,datcol = 1:4, varcli = "RR", anyi = 1986, anyf = 2017, mindat = 365, sep = ",", dec = ".", na.strings = "NA", header = TRUE)
 ```
 
-Considera que en los archivos
+Para proceder con la homogeneización, se recomienda realizar un tratamiento mensual previo al procesamiento diario. Por ello, se inicia revisando la calidad de la data disponible a escala diaria:
+
+```{r}
+homogen('RR',1986,2017, onlyQC = TRUE)
+```
+
+Como resultado, tendremos un PDF con un análisis exploratorio que incluye diagramas boxplot, incrementos, periodos disponibles, histograma, correlograma, dendograma, entre otros. Luego, se recomienda hacer un primer tratamiento de la información agregando la información a escala mensual, pues, de esta manera se aminora la variabilidad típica de valores diarios y permite al modelo identificar de mejor manera los saltos en las medias por factores no ambientales. Para esto, utilzamos la herramienta `dd2m`.
+
+```{r}
+dd2m(varcli = "RR",anyi = 1986, anyf = 2017, ndec = 1, valm = 1, namax = 30, na.strings="NA") 
+```
+
+::: callout-important
+## valm: indica cómo vamos a realizar la agrupación mensual. 1: Suma; 2: Promedio; 3: Máximo; 4: Mínimo; 5: Desviación estándar.
+:::
+
+\# Aplicamos la homogeneización a la data mensual acumulada

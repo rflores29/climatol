@@ -8,7 +8,7 @@
 
 <meta name="author" content="Ricardo Flores">
 
-<title>Homogenizacion with Climatol</title>
+<title>Homogenizacion con Climatol</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Homogenizacion with Climatol</h1>
+<h1 class="title">Homogenizacion con Climatol</h1>
 </div>
 
 
@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="data-diaria">Data Diaria</h2>
 <p>Instalamos el paquete <code>climatol</code> y procedemos a preparar los archivos con data diaria a fin de adecuarlos al formato que lee el paquete. Para ello, empleamos la función <code>daily2climatol</code>. Los principales <em>inputs</em> a considerar:</p>
 <ul>
-<li><code>stfile</code>: Nombre del archivo <strong>*.csv</strong> con la información de las estaciones y data a recopilar.</li>
+<li><code>stfile</code>: nombre del archivo <strong>*.csv</strong> con la información de las estaciones y data a recopilar.</li>
 </ul>
 <table class="table">
 <thead>
@@ -203,25 +203,47 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Alerta: Las tablas deben contemplar años completos, es decir, iniciar el 01 de enero y culminar el 31 de diciembre.
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Nota: En caso de sólo desear trabajar con una variable, no es necesario que las otras columnas de datos esté completa
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
 <ul>
-<li><p><code>stcol</code>:</p></li>
-<li><p><code>datcol</code>:</p></li>
-<li><p><code>varcli</code>:</p></li>
-<li><p><code>anyi</code> y <code>anyf</code>:</p></li>
-<li><p><code>mindat</code>:</p></li>
-<li><p><code>na.strings</code>:</p></li>
-<li><p><code>header</code>:</p></li>
+<li><p><code>stcol</code>: número de las columnas en <code>stfile</code> que contienen Nombre de archivo, Longituf, Latitud, Altitud, ID, Nombre de la estación. En caso estén ordenadas de forma distinta, debe ingresarse a manera de vector a fin que se reconozca el campo requerido.</p></li>
+<li><p><code>datcol</code>: número de las columnas en los archivos de las estaciones (P001-Jauja.csv ; P002-Ingenio.csv ; etc.) que contiene el Año, Mes, Día, Valor Medido. En caso estén ordenadas de forma distinta, debe ingresarse a manera de vector a fin que se reconozca el campo requerido.</p></li>
+<li><p><code>varcli</code>: nombre corto de la variable climática a analizar. RR: Precipitación, TX: Temperatura Máxima, TM: Temperatura Mínima.</p></li>
+<li><p><code>anyi</code> y <code>anyf</code>: año de inicio y final de las series a analizar.</p></li>
+<li><p><code>mindat</code>: mínimo número de datos requeridos por estación. Para datos diarios es 365 y para datos mensuales, 12.</p></li>
+<li><p><code>na.strings</code>: string que representa valores perdidos. Por defecto se usa <code>"NA"</code>, y puede ser modificado acorde a la data ingresada.</p></li>
+<li><p><code>header</code>: variable booleana para indicar la presencia (<code>TRUE</code>) o ausencia (<code>FALSE</code>)de encabezados.</p></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">installed.packages</span>(<span class="st">"climatol"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     Package LibPath Version Priority Depends Imports LinkingTo Suggests
-     Enhances License License_is_FOSS License_restricts_use OS_type Archs
-     MD5sum NeedsCompilation Built</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"climatol"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">daily2climatol</span>(<span class="st">"1.Stations.csv"</span>,<span class="at">stcol =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,<span class="at">datcol =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">varcli =</span> <span class="st">"RR"</span>, <span class="at">anyi =</span> <span class="dv">1986</span>, <span class="at">anyf =</span> <span class="dv">2017</span>, <span class="at">mindat =</span> <span class="dv">365</span>, <span class="at">sep =</span> <span class="st">","</span>, <span class="at">dec =</span> <span class="st">"."</span>, <span class="at">na.strings =</span> <span class="st">"NA"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># En caso sea la primera vez trabajando con el paquete, proceder con su instalación</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># installed.packages("climatol")</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(<span class="st">"climatol"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">daily2climatol</span>(<span class="st">"1.Stations.csv"</span>,<span class="at">stcol =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,<span class="at">datcol =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">varcli =</span> <span class="st">"RR"</span>, <span class="at">anyi =</span> <span class="dv">1986</span>, <span class="at">anyf =</span> <span class="dv">2017</span>, <span class="at">mindat =</span> <span class="dv">365</span>, <span class="at">sep =</span> <span class="st">","</span>, <span class="at">dec =</span> <span class="st">"."</span>, <span class="at">na.strings =</span> <span class="st">"NA"</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>11688 days between 1986-01-01 and 2017-12-31
 
