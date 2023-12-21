@@ -1,2 +1,2 @@
-# climatol
-Homogenization precipitation data with Climatol package
+# Climatol
+Homogenization of precipitation data with Climatol package
