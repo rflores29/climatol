@@ -275,6 +275,7 @@ Station coordinates and names saved to file RR_1986-2017.est :
 </div>
 </div>
 <p>Para proceder con la homogeneización, se recomienda realizar un tratamiento mensual previo al procesamiento diario. Por ello, se inicia revisando la calidad de la data disponible a escala diaria:</p>
+<p><code>homogen('RR',1986,2017, onlyQC = TRUE)</code></p>
 <p>Como resultado, tendremos un PDF con un análisis exploratorio que incluye diagramas boxplot, incrementos, periodos disponibles, histograma, correlograma, dendograma, entre otros. Luego, se recomienda hacer un primer tratamiento de la información agregando la información a escala mensual, pues, de esta manera se aminora la variabilidad típica de valores diarios y permite al modelo identificar de mejor manera los saltos en las medias por factores no ambientales. Para esto, utilzamos la herramienta <code>dd2m</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dd2m</span>(<span class="at">varcli =</span> <span class="st">"RR"</span>,<span class="at">anyi =</span> <span class="dv">1986</span>, <span class="at">anyf =</span> <span class="dv">2017</span>, <span class="at">ndec =</span> <span class="dv">1</span>, <span class="at">valm =</span> <span class="dv">1</span>, <span class="at">namax =</span> <span class="dv">30</span>, <span class="at">na.strings=</span><span class="st">"NA"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -301,16 +302,29 @@ valm: indica cómo vamos a realizar la agrupación mensual. 1: Suma; 2: Promedio
 </div>
 <p>Luego, procedemos a aplicar homogeneización a la data mensual acumulada. Consideramos la función <code>homogen</code> para el periodo de años de trabajo. Los principales parámetros a revisar son:</p>
 <ul>
-<li><p><code>std</code>: define el tipo de normalización a emplear. Los valores posibles son: 1: desviación desde la media; 2: tasas a la media;</p></li>
-<li><p><code>inth</code>:</p></li>
+<li><p><code>std</code>: define el tipo de normalización a emplear. Los valores posibles son: 1: desviación desde la media; 2: tasas a la media; 3: estandarización.</p></li>
+<li><p><code>inth</code>: define el umbral de heterogeneidad (comúnmente conocido como <em>inhomogeneidad</em>) a partir del cual se definirán cambios en la media.</p></li>
 </ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Revisar “<em>1.2. Metodología</em>” en la <a href="https://www.climatol.eu/climatol4-es.pdf">Guía de uso del paquete de R Climatol</a>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">homogen</span>(<span class="st">'RR-m'</span>,<span class="dv">1986</span>,<span class="dv">2017</span>,<span class="at">std=</span><span class="dv">2</span>, <span class="at">inht=</span><span class="dv">20</span>,<span class="at">annual=</span><span class="st">"total"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 HOMOGEN() APPLICATION OUTPUT  (From R's contributed package 'climatol' 4.0.0)
 
-=========== Homogenization of RR-m, 1986-2017. (Fri Dec 22 09:36:32 2023)
+=========== Homogenization of RR-m, 1986-2017. (Fri Dec 22 10:32:01 2023)
 
 Parameters: varcli=RR-m, anyi=1986, anyf=2017, test=snht, nref=10 10 4, std=2, swa=NA, ndec=1, niqd=3, dz.max=0.01, dz.min=-0.01, cumc=NA, wd=0 0 100, inht=20, sts=5, maxdif=0.05, maxite=999, force=FALSE, wz=0.001, mindat=NA, onlyQC=FALSE, annual=sum, ini=NA, na.strings=NA, vmin=NA, vmax=NA, hc.method=ward.D2, nclust=300, cutlev=NA, grdcol=#666666, mapcol=#666666, expl=FALSE, metad=FALSE, sufbrk=m, tinc=NA, tz=utc, rlemin=NA, rlemax=NA, cex=1.1, uni=NA, raway=TRUE, graphics=TRUE, verb=TRUE, logf=TRUE, snht1=NA, snht2=NA, gp=NA
 
@@ -502,7 +516,7 @@ Last series readjustment (please, be patient...)</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-======== End of the homogenization process, after 4.41 secs 
+======== End of the homogenization process, after 4.59 secs 
 
 ----------- Final calculations:
 
@@ -562,14 +576,14 @@ argument not used by format ' dahstat('%s',%d,%d) #averages'</code></pre>
    ... (See other options in the package documentation)</code></pre>
 </div>
 </div>
-<p>Luego, con el procesamiento previo, aplicamos la homogeneización a los datos diarios</p>
+<p>El resultado será un PDF mostrando los análisis y procedimientos realizados. Se deberá analizar los resultados para iterarar cambiando el humbral de inhomogeneidad en caso sea necesario. Luego de aceptar los resultados, podemos utilizarlos como metadata para la homogeneización a escala diaria (o subdiaria de ser el caso). Para ello emplearemos nuevamente la función <code>homogen</code> definiendo el uso de metadata <code>metad = TRUE</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">homogen</span>(<span class="st">'RR'</span>,<span class="dv">1986</span>,<span class="dv">2017</span>,<span class="at">annual=</span><span class="st">"total"</span>, <span class="at">metad =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 HOMOGEN() APPLICATION OUTPUT  (From R's contributed package 'climatol' 4.0.0)
 
-=========== Homogenization of RR, 1986-2017. (Fri Dec 22 09:36:37 2023)
+=========== Homogenization of RR, 1986-2017. (Fri Dec 22 10:32:06 2023)
 
 Parameters: varcli=RR, anyi=1986, anyf=2017, test=snht, nref=10 10 4, std=NA, swa=NA, ndec=1, niqd=3, dz.max=0.01, dz.min=-0.01, cumc=NA, wd=0 0 100, inht=0 0, sts=5, maxdif=0.05, maxite=999, force=FALSE, wz=0.001, mindat=NA, onlyQC=FALSE, annual=sum, ini=NA, na.strings=NA, vmin=NA, vmax=NA, hc.method=ward.D2, nclust=300, cutlev=NA, grdcol=#666666, mapcol=#666666, expl=FALSE, metad=TRUE, sufbrk=m, tinc=NA, tz=utc, rlemin=NA, rlemax=NA, cex=1.1, uni=NA, raway=TRUE, graphics=TRUE, verb=TRUE, logf=TRUE, snht1=NA, snht2=NA, gp=NA
 
@@ -792,7 +806,7 @@ Last series readjustment (please, be patient...)</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-======== End of the missing data infilling process, after 3.53 mins 
+======== End of the missing data infilling process, after 3.63 mins 
 
 ----------- Final calculations:
 
@@ -853,14 +867,14 @@ argument not used by format ' dahstat('%s',%d,%d) #averages'</code></pre>
    ... (See other options in the package documentation)</code></pre>
 </div>
 </div>
-<p>Debemos revisar el archivo “***_out.csv” para identificar aquellos valores identificados como atípicos pero que se considerarían correctos. En base a ello, volveremos a correr el código definiendo un umbral de desviaciones estándar que permita utilizar o descartar los valores</p>
+<p>Debemos revisar el archivo <strong>***_out.csv</strong> para identificar aquellos valores identificados como atípicos pero que se podrían ser correctos. Esto se definirá según la experiencia del investigador y el conocimiento de la zona de estudio. En base a ello, volveremos a correr el código definiendo un umbral de desviaciones estándar que permita utilizar o descartar los valores mediante el uso del parámetro <code>dz.max</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">homogen</span>(<span class="st">'RR'</span>,<span class="dv">1986</span>,<span class="dv">2017</span>,<span class="at">annual=</span><span class="st">"total"</span>, <span class="at">metad =</span> <span class="cn">TRUE</span>, <span class="at">dz.max =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 HOMOGEN() APPLICATION OUTPUT  (From R's contributed package 'climatol' 4.0.0)
 
-=========== Homogenization of RR, 1986-2017. (Fri Dec 22 09:40:09 2023)
+=========== Homogenization of RR, 1986-2017. (Fri Dec 22 10:35:44 2023)
 
 Parameters: varcli=RR, anyi=1986, anyf=2017, test=snht, nref=10 10 4, std=NA, swa=NA, ndec=1, niqd=3, dz.max=8, dz.min=-8, cumc=NA, wd=0 0 100, inht=0 0, sts=5, maxdif=0.05, maxite=999, force=FALSE, wz=0.001, mindat=NA, onlyQC=FALSE, annual=sum, ini=NA, na.strings=NA, vmin=NA, vmax=NA, hc.method=ward.D2, nclust=300, cutlev=NA, grdcol=#666666, mapcol=#666666, expl=FALSE, metad=TRUE, sufbrk=m, tinc=NA, tz=utc, rlemin=NA, rlemax=NA, cex=1.1, uni=NA, raway=TRUE, graphics=TRUE, verb=TRUE, logf=TRUE, snht1=NA, snht2=NA, gp=NA
 
@@ -1052,7 +1066,7 @@ Last series readjustment (please, be patient...)</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-======== End of the missing data infilling process, after 2.69 mins 
+======== End of the missing data infilling process, after 2.74 mins 
 
 ----------- Final calculations:
 
@@ -1113,7 +1127,7 @@ argument not used by format ' dahstat('%s',%d,%d) #averages'</code></pre>
    ... (See other options in the package documentation)</code></pre>
 </div>
 </div>
-<p>Exportando resultados en formato <strong>*.csv</strong> empleando el comando <code>dahstat</code>. Esto generará un archivo “Var_anyi-anyf_series.csv”</p>
+<p>Finalmente, los resultados obtenidos pueden ser exportados en formato <strong>*.csv</strong> empleando el comando <code>dahstat</code>. Esto generará un archivo nombrado con la siguiente configuración <strong>variable_anyi-anyf_series.csv</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dahstat</span>(<span class="st">"RR"</span>,<span class="dv">1986</span>, <span class="dv">2017</span>,<span class="at">stat =</span> <span class="st">"series"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
