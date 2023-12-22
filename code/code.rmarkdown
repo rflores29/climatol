@@ -1,0 +1,121 @@
+---
+title: "Homogenizacion con Climatol"
+author: "Ricardo Flores"
+warning: TRUE
+echo: TRUE
+---
+
+
+# Climatol
+
+Climatol es un paquete en lenguaje R desarrollado por Jose A. Guijarro. Permite el trabajo de homogeneización, control de calidad y relleno de datos ausentes para series climáticas. Para revisar guías y tutoriales ingresar a <https://www.climatol.eu/>
+
+## Data Diaria
+
+Instalamos el paquete `climatol` y procedemos a preparar los archivos con data diaria a fin de adecuarlos al formato que lee el paquete. Para ello, empleamos la función `daily2climatol`. Los principales *inputs* a considerar:
+
+-   `stfile`: nombre del archivo **\*.csv** con la información de las estaciones y data a recopilar.
+
+|     FILE_NAME      |   LONG   |   LAT    | ALT  |  ID  | STAT_NAME |
+|:------------------:|:--------:|:--------:|:----:|:----:|:---------:|
+|   P001-Jauja.csv   | -75.4744 | -11.7836 | 3352 | p001 |   Jauja   |
+|  P002-Ingenio.csv  | -75.2558 | -11.8794 | 3373 | p002 |  Ingenio  |
+|  P003-Ricran.csv   | -75.5327 | -11.5561 | 3674 | p003 |  Ricrán   |
+| P004-Santa_Ana.csv | -75.2215 | -12.0096 | 3293 | p004 | Santa_Ana |
+
+Considerar que en la carpeta de trabajo debemos tener los archivos **\*.csv** con la información de las estaciones. Estos archivos deben seguir la siguiente configuración:
+
+| Year | Month | Day | Prec | Tmax | Tmin |
+|:----:|:-----:|:---:|:----:|:----:|:----:|
+| 1986 |   1   |  1  | 20.8 |  12  |  2   |
+| 1986 |   1   |  2  | 4.0  |  14  |  5   |
+| 1986 |   1   |  3  | 0.6  |  13  |  3   |
+| 1986 |   1   |  4  | 3.2  |  13  |  2   |
+
+::: callout-warning
+## Alerta: Las tablas deben contemplar años completos, es decir, iniciar el 01 de enero y culminar el 31 de diciembre.
+:::
+
+::: callout-note
+## Nota: En caso de sólo desear trabajar con una variable, no es necesario que las otras columnas de datos esté completa
+:::
+
+-   `stcol`: número de las columnas en `stfile` que contienen Nombre de archivo, Longituf, Latitud, Altitud, ID, Nombre de la estación. En caso estén ordenadas de forma distinta, debe ingresarse a manera de vector a fin que se reconozca el campo requerido.
+
+-   `datcol`: número de las columnas en los archivos de las estaciones (P001-Jauja.csv ; P002-Ingenio.csv ; etc.) que contiene el Año, Mes, Día, Valor Medido. En caso estén ordenadas de forma distinta, debe ingresarse a manera de vector a fin que se reconozca el campo requerido.
+
+-   `varcli`: nombre corto de la variable climática a analizar. RR: Precipitación, TX: Temperatura Máxima, TM: Temperatura Mínima.
+
+-   `anyi` y `anyf`: año de inicio y final de las series a analizar.
+
+-   `mindat`: mínimo número de datos requeridos por estación. Para datos diarios es 365 y para datos mensuales, 12.
+
+-   `na.strings`: string que representa valores perdidos. Por defecto se usa `"NA"`, y puede ser modificado acorde a la data ingresada.
+
+-   `header`: variable booleana para indicar la presencia (`TRUE`) o ausencia (`FALSE`)de encabezados.
+
+
+```{r}
+rm(list = ls())
+# En caso sea la primera vez trabajando con el paquete, proceder con su instalación
+# installed.packages("climatol")
+pacman::p_load("climatol")
+daily2climatol("1.Stations.csv",stcol = 1:6,datcol = 1:4, varcli = "RR", anyi = 1986, anyf = 2017, mindat = 365, sep = ",", dec = ".", na.strings = "NA", header = TRUE)
+```
+
+
+Para proceder con la homogeneización, se recomienda realizar un tratamiento mensual previo al procesamiento diario. Por ello, se inicia revisando la calidad de la data disponible a escala diaria:
+
+`homogen('RR',1986,2017, onlyQC = TRUE)`
+
+Como resultado, tendremos un PDF con un análisis exploratorio que incluye diagramas boxplot, incrementos, periodos disponibles, histograma, correlograma, dendograma, entre otros. Luego, se recomienda hacer un primer tratamiento de la información agregando la información a escala mensual, pues, de esta manera se aminora la variabilidad típica de valores diarios y permite al modelo identificar de mejor manera los saltos en las medias por factores no ambientales. Para esto, utilzamos la herramienta `dd2m`.
+
+
+```{r}
+dd2m(varcli = "RR",anyi = 1986, anyf = 2017, ndec = 1, valm = 1, namax = 30, na.strings="NA") 
+```
+
+
+::: callout-important
+## valm: indica cómo vamos a realizar la agrupación mensual. 1: Suma; 2: Promedio; 3: Máximo; 4: Mínimo; 5: Desviación estándar.
+:::
+
+Luego, procedemos a aplicar homogeneización a la data mensual acumulada. Consideramos la función `homogen` para el periodo de años de trabajo. Los principales parámetros a revisar son:
+
+-   `std`: define el tipo de normalización a emplear. Los valores posibles son: 1: desviación desde la media; 2: tasas a la media; 3: estandarización.
+
+-   `inth`: define el umbral de heterogeneidad (comúnmente conocido como *inhomogeneidad*) a partir del cual se definirán cambios en la media.
+
+::: callout-important
+## Revisar "*1.2. Metodología*" en la [Guía de uso del paquete de R Climatol](https://www.climatol.eu/climatol4-es.pdf)
+:::
+
+
+```{r}
+homogen('RR-m',1986,2017,std=2, inht=20,annual="total")
+```
+
+
+El resultado será un PDF mostrando los análisis y procedimientos realizados. Se deberá analizar los resultados para iterarar cambiando el humbral de inhomogeneidad en caso sea necesario. Luego de aceptar los resultados, podemos utilizarlos como metadata para la homogeneización a escala diaria (o subdiaria de ser el caso). Para ello emplearemos nuevamente la función `homogen` definiendo el uso de metadata `metad = TRUE`.
+
+
+```{r}
+homogen('RR',1986,2017,annual="total", metad = TRUE)
+```
+
+
+Debemos revisar el archivo **\*\*\*\_out.csv** para identificar aquellos valores identificados como atípicos pero que se podrían ser correctos. Esto se definirá según la experiencia del investigador y el conocimiento de la zona de estudio. En base a ello, volveremos a correr el código definiendo un umbral de desviaciones estándar que permita utilizar o descartar los valores mediante el uso del parámetro `dz.max`.
+
+
+```{r}
+homogen('RR',1986,2017,annual="total", metad = TRUE, dz.max = 8)
+```
+
+
+Finalmente, los resultados obtenidos pueden ser exportados en formato **\*.csv** empleando el comando `dahstat`. Esto generará un archivo nombrado con la siguiente configuración **variable_anyi-anyf_series.csv**.
+
+
+```{r}
+dahstat("RR",1986, 2017,stat = "series")
+```
+

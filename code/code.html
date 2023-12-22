@@ -274,7 +274,856 @@ Station coordinates and names saved to file RR_1986-2017.est :
                    </code></pre>
 </div>
 </div>
-<p>Considera que en los archivos</p>
+<p>Para proceder con la homogeneización, se recomienda realizar un tratamiento mensual previo al procesamiento diario. Por ello, se inicia revisando la calidad de la data disponible a escala diaria:</p>
+<p>Como resultado, tendremos un PDF con un análisis exploratorio que incluye diagramas boxplot, incrementos, periodos disponibles, histograma, correlograma, dendograma, entre otros. Luego, se recomienda hacer un primer tratamiento de la información agregando la información a escala mensual, pues, de esta manera se aminora la variabilidad típica de valores diarios y permite al modelo identificar de mejor manera los saltos en las medias por factores no ambientales. Para esto, utilzamos la herramienta <code>dd2m</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dd2m</span>(<span class="at">varcli =</span> <span class="st">"RR"</span>,<span class="at">anyi =</span> <span class="dv">1986</span>, <span class="at">anyf =</span> <span class="dv">2017</span>, <span class="at">ndec =</span> <span class="dv">1</span>, <span class="at">valm =</span> <span class="dv">1</span>, <span class="at">namax =</span> <span class="dv">30</span>, <span class="at">na.strings=</span><span class="st">"NA"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data matrix: 11688 data x 4 stations
+  1  2  3  4
+
+Monthly sum values saved to file RR-m_1986-2017.dat 
+(Months with more than 30 % missing data have also been set to missing)</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+valm: indica cómo vamos a realizar la agrupación mensual. 1: Suma; 2: Promedio; 3: Máximo; 4: Mínimo; 5: Desviación estándar.
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<p>Luego, procedemos a aplicar homogeneización a la data mensual acumulada. Consideramos la función <code>homogen</code> para el periodo de años de trabajo. Los principales parámetros a revisar son:</p>
+<ul>
+<li><p><code>std</code>: define el tipo de normalización a emplear. Los valores posibles son: 1: desviación desde la media; 2: tasas a la media;</p></li>
+<li><p><code>inth</code>:</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">homogen</span>(<span class="st">'RR-m'</span>,<span class="dv">1986</span>,<span class="dv">2017</span>,<span class="at">std=</span><span class="dv">2</span>, <span class="at">inht=</span><span class="dv">20</span>,<span class="at">annual=</span><span class="st">"total"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+HOMOGEN() APPLICATION OUTPUT  (From R's contributed package 'climatol' 4.0.0)
+
+=========== Homogenization of RR-m, 1986-2017. (Fri Dec 22 09:36:32 2023)
+
+Parameters: varcli=RR-m, anyi=1986, anyf=2017, test=snht, nref=10 10 4, std=2, swa=NA, ndec=1, niqd=3, dz.max=0.01, dz.min=-0.01, cumc=NA, wd=0 0 100, inht=20, sts=5, maxdif=0.05, maxite=999, force=FALSE, wz=0.001, mindat=NA, onlyQC=FALSE, annual=sum, ini=NA, na.strings=NA, vmin=NA, vmax=NA, hc.method=ward.D2, nclust=300, cutlev=NA, grdcol=#666666, mapcol=#666666, expl=FALSE, metad=FALSE, sufbrk=m, tinc=NA, tz=utc, rlemin=NA, rlemax=NA, cex=1.1, uni=NA, raway=TRUE, graphics=TRUE, verb=TRUE, logf=TRUE, snht1=NA, snht2=NA, gp=NA
+
+Data matrix: 384 data x 4 stations</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Warning: 1 big outliers deleted before homogenization:
+2 p002 : 727 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+-------------------------------------------
+Stations in the 2 clusters:
+
+$`1`
+[1] 1 2 4
+
+$`2`
+[1] 3
+
+---------------------------------------------</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Computing inter-station distances ...  1  2  3
+
+
+========== STAGE 1 (SNHT on overlapping temporal windows) ===========</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Calculation of missing data with outlier removal
+(Suggested data replacements are provisional)
+  Station(rank) Date: Observed -&gt; Suggested (Anomaly, in std. devs.)
+p001(1) 1989-10-01: 47 -&gt; 254.7 (-8.54) Only 1 reference! (Unchanged)
+p003(3) 1989-10-01: 289.1 -&gt; 53.3 (7.62) Only 1 reference! (Unchanged)
+
+Performing shift analysis on the 4 series...
+
+p002(2) breaks at 1996-06-01 (22.7)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+
+Update number of series:  4 + 1 = 5 
+
+Calculation of missing data with outlier removal
+(Suggested data replacements are provisional)
+  Station(rank) Date: Observed -&gt; Suggested (Anomaly, in std. devs.)
+p001(1) 1989-10-01: 47 -&gt; 253.7 (-8.22) Only 1 reference! (Unchanged)
+p003(3) 1989-10-01: 289.1 -&gt; 53.6 (7.49) Only 1 reference! (Unchanged)
+
+Performing shift analysis on the 5 series...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+
+========== STAGE 2 (SNHT on the whole series) =======================</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Calculation of missing data with outlier removal
+(Suggested data replacements are provisional)
+  Station(rank) Date: Observed -&gt; Suggested (Anomaly, in std. devs.)
+p001(1) 1989-10-01: 47 -&gt; 254 (-8.21) Only 1 reference! (Unchanged)
+p003(3) 1989-10-01: 289.1 -&gt; 53.5 (7.49) Only 1 reference! (Unchanged)
+
+Performing shift analysis on the 5 series...
+
+p002(2) breaks at 2001-04-01 (32.5)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+p001(1) breaks at 1987-02-01 (29.4)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Fragment with less than 12 data DELETED
+
+Update number of series:  5 + 1 = 6 
+
+Calculation of missing data with outlier removal
+(Suggested data replacements are provisional)
+  Station(rank) Date: Observed -&gt; Suggested (Anomaly, in std. devs.)
+p001(1) 1989-10-01: 47 -&gt; 254.1 (-9.32) Only 1 reference! (Unchanged)
+
+Performing shift analysis on the 6 series...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Series that could break but had only one reference:
+[1] "p003"
+
+
+========== STAGE 3 (Final calculation of all missing data) ==========
+
+Computing inter-station weights... (done)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Calculation of missing data with outlier removal
+(Suggested data replacements are provisional)
+
+The following lines will have one of these formats:
+  Station(rank) Date: Observed -&gt; Suggested (Anomaly, in std. devs.)
+  Iteration Max_data_difference (Station_code)
+p001(1) 1989-10-01: 47 -&gt; 258.9 (-9.45) Only 1 reference! (Unchanged)
+p001(1) 1989-10-01: 47 -&gt; 259.7 (-9.47) Only 1 reference! (Unchanged)
+2 6.471 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260 (-9.48) Only 1 reference! (Unchanged)
+3 5.691 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.1 (-9.49) Only 1 reference! (Unchanged)
+4 5.043 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.3 (-9.5) Only 1 reference! (Unchanged)
+5 4.46 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.4 (-9.5) Only 1 reference! (Unchanged)
+6 3.936 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.5 (-9.5) Only 1 reference! (Unchanged)
+7 3.469 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.6 (-9.51) Only 1 reference! (Unchanged)
+8 3.054 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.7 (-9.51) Only 1 reference! (Unchanged)
+9 2.686 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.7 (-9.51) Only 1 reference! (Unchanged)
+10 2.361 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.8 (-9.51) Only 1 reference! (Unchanged)
+11 2.075 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.8 (-9.52) Only 1 reference! (Unchanged)
+12 1.823 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.9 (-9.52) Only 1 reference! (Unchanged)
+13 1.602 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.9 (-9.52) Only 1 reference! (Unchanged)
+14 1.407 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 260.9 (-9.52) Only 1 reference! (Unchanged)
+15 1.236 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+16 1.086 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+17 0.955 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+18 0.839 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+19 0.737 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+20 0.648 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+21 0.57 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+22 0.501 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+23 0.441 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+24 0.388 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+25 0.341 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261 (-9.52) Only 1 reference! (Unchanged)
+26 0.3 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+27 0.264 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+28 0.233 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+29 0.205 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+30 0.18 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+31 0.159 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+32 0.14 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+33 0.123 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+34 0.108 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+35 0.096 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+36 0.084 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+37 0.074 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+38 0.065 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+39 0.058 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+40 0.051 (p002-3)
+p001(1) 1989-10-01: 47 -&gt; 261.1 (-9.52) Only 1 reference! (Unchanged)
+41 0.045 (p002-3)
+Prescribed convergence reached
+
+Last series readjustment (please, be patient...)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+======== End of the homogenization process, after 4.41 secs 
+
+----------- Final calculations:
+
+SNHT: Standard normal homogeneity test (on anomaly series)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  4.200   5.475  11.600  14.683  17.950  37.200 
+
+RMSE: Root mean squared error of the estimated data
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  17.47   20.66   22.28   26.88   33.89   41.35 
+
+POD: Percentage of original data
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  14.00   32.75   58.00   57.33   86.25   94.00 
+
+  SNHT RMSE POD Code   Name     
+1  4.2 22.5 92  p001   Jauja    
+2 19.0 17.5 47  p002   Ingenio  
+3 37.2 37.7 94  p003   Ricran   
+4  8.4 22.1 69  p004   Santa_Ana
+5 14.8 41.3 28  p002-2 Ingenio-2
+6  4.5 20.2 14  p002-3 Ingenio-3
+
+Frequency distribution tails of residual anomalies and SNHT:
+
+Left tail of standardized anomalies:
+0.1% 0.2% 0.5%   1%   2%   5%  10% 
+-7.4 -5.7 -3.6 -2.6 -2.1 -1.4 -0.9 
+Right tail of standardized anomalies:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+  1.0   1.6   2.1   2.6   3.3   4.1   4.9 
+Right tail of SNHT on windows of 120 terms with up to 4 references:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+ 17.3  17.4  17.4  17.5  17.5  17.5  17.5 
+Right tail of SNHT with up to 4 references:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+ 28.1  32.7  35.4  36.3  36.7  37.0  37.1 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+----------- Generated output files: -------------------------
+
+RR-m_1986-2017.txt :  Text output of the whole process 
+RR-m_1986-2017_out.csv :  List of corrected outliers 
+RR-m_1986-2017_brk.csv :  List of corrected breaks 
+RR-m_1986-2017.pdf :  Diagnostic graphics 
+RR-m_1986-2017.rda :  Homogenization results. Postprocess with (examples):</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sprintf(" dahstat('%s',%d,%d) #averages", varcli, anyi, anyf, : one
+argument not used by format ' dahstat('%s',%d,%d) #averages'</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   dahstat('RR-m',1986,2017) #averages 
+   dahstat('RR-m',1986,2017,stat='tnd') #OLS trends and p-values 
+   dahgrid('RR-m',1986,2017,grid=YOURGRID) #homogenized grids 
+   ... (See other options in the package documentation)</code></pre>
+</div>
+</div>
+<p>Luego, con el procesamiento previo, aplicamos la homogeneización a los datos diarios</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">homogen</span>(<span class="st">'RR'</span>,<span class="dv">1986</span>,<span class="dv">2017</span>,<span class="at">annual=</span><span class="st">"total"</span>, <span class="at">metad =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+HOMOGEN() APPLICATION OUTPUT  (From R's contributed package 'climatol' 4.0.0)
+
+=========== Homogenization of RR, 1986-2017. (Fri Dec 22 09:36:37 2023)
+
+Parameters: varcli=RR, anyi=1986, anyf=2017, test=snht, nref=10 10 4, std=NA, swa=NA, ndec=1, niqd=3, dz.max=0.01, dz.min=-0.01, cumc=NA, wd=0 0 100, inht=0 0, sts=5, maxdif=0.05, maxite=999, force=FALSE, wz=0.001, mindat=NA, onlyQC=FALSE, annual=sum, ini=NA, na.strings=NA, vmin=NA, vmax=NA, hc.method=ward.D2, nclust=300, cutlev=NA, grdcol=#666666, mapcol=#666666, expl=FALSE, metad=TRUE, sufbrk=m, tinc=NA, tz=utc, rlemin=NA, rlemax=NA, cex=1.1, uni=NA, raway=TRUE, graphics=TRUE, verb=TRUE, logf=TRUE, snht1=NA, snht2=NA, gp=NA
+
+Data matrix: 11688 data x 4 stations</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+-------------------------------------------
+Stations in the 2 clusters:
+
+$`1`
+[1] 1
+
+$`2`
+[1] 2 3 4
+
+---------------------------------------------</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Computing inter-station distances ...  1  2  3
+
+Splitting the series following the metadata file...:
+
+p001(1) breaks at 1987-02-01
+p002(2) breaks at 1996-06-01
+p002(2) breaks at 2001-04-01
+
+Update number of series:  4 + 3 = 7 
+
+
+
+========== STAGE 3 (Final calculation of all missing data) ==========
+
+Computing inter-station weights... (done)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Calculation of missing data with outlier removal
+(Suggested data replacements are provisional)
+
+The following lines will have one of these formats:
+  Station(rank) Date: Observed -&gt; Suggested (Anomaly, in std. devs.)
+  Iteration Max_data_difference (Station_code)
+p001(1) 1997-12-25: 0.7 -&gt; 30.5 (-8.04)
+p001(1) 1997-12-26: 48.2 -&gt; 5.6 (11.48)
+p003(3) 1986-01-07: 0 -&gt; 29 (-7.48)
+p003(3) 1986-01-09: 0 -&gt; 35.7 (-9.2)
+p003(3) 1986-01-11: 0 -&gt; 29.3 (-7.57)
+p002-2(6) 1986-01-05: 50 -&gt; 2.5 (12.31)
+p002-2(6) 1986-01-07: 51.2 -&gt; 0 (13.26)
+p002-2(6) 1986-01-08: 51 -&gt; 3.5 (12.31)
+p002-2(6) 1986-01-11: 50.9 -&gt; 0.5 (13.07)
+p002-2(6) 1991-03-07: 1.6 -&gt; 29.4 (-7.15) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 28.5 (-7.79) Only 1 reference! (Unchanged)
+2 28.965 (p003)
+p003(3) 1986-01-06: 0 -&gt; 27.7 (-7.21)
+p003(3) 1986-01-10: 0 -&gt; 27.6 (-7.18)
+p002-2(6) 1991-03-07: 1.6 -&gt; 27.9 (-7.68) Only 1 reference! (Unchanged)
+3 27.697 (p003)
+p003(3) 1989-11-02: 7.5 -&gt; 34.9 (-7.14) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 27.5 (-7.63) Only 1 reference! (Unchanged)
+4 10.775 (p002-3)
+p003(3) 1986-01-12: 0 -&gt; 27.5 (-7.18)
+p002-2(6) 1991-03-07: 1.6 -&gt; 27.1 (-7.55) Only 1 reference! (Unchanged)
+5 27.534 (p003)
+p003(3) 1988-01-25: 0 -&gt; 27.4 (-7.17)
+p002-2(6) 1991-03-07: 1.6 -&gt; 26.8 (-7.5) Only 1 reference! (Unchanged)
+6 27.448 (p003)
+p003(3) 1989-11-02: 7.5 -&gt; 34.8 (-7.14) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 26.5 (-7.47) Only 1 reference! (Unchanged)
+7 10.041 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 26.3 (-7.42) Only 1 reference! (Unchanged)
+8 0.626 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 26.1 (-7.38) Only 1 reference! (Unchanged)
+9 0.583 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.9 (-7.35) Only 1 reference! (Unchanged)
+10 0.543 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.8 (-7.32) Only 1 reference! (Unchanged)
+11 0.508 (p002-3)
+p003(3) 1986-05-01: 0 -&gt; 27.4 (-7.14)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.7 (-7.3) Only 1 reference! (Unchanged)
+12 27.411 (p003)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.6 (-7.24) Only 1 reference! (Unchanged)
+13 9.427 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.5 (-7.22) Only 1 reference! (Unchanged)
+14 0.437 (p002-3)
+p003(3) 1986-01-27: 2.5 -&gt; 29.9 (-7.14)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.4 (-7.2) Only 1 reference! (Unchanged)
+15 27.383 (p003)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.3 (-7.2) Only 1 reference! (Unchanged)
+16 10.01 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.3 (-7.19) Only 1 reference! (Unchanged)
+17 0.387 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.2 (-7.17) Only 1 reference! (Unchanged)
+18 0.368 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.2 (-7.16) Only 1 reference! (Unchanged)
+19 0.35 (p002-3)
+p003(3) 1986-01-15: 0 -&gt; 27.4 (-7.16)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.1 (-7.15) Only 1 reference! (Unchanged)
+20 27.449 (p003)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.1 (-7.16) Only 1 reference! (Unchanged)
+21 10.18 (p002-3)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25 (-7.14) Only 1 reference! (Unchanged)
+22 0.321 (p002-3)
+23 0.306 (p002-3)
+24 0.292 (p002-3)
+25 0.28 (p002-3)
+26 0.267 (p002-3)
+27 0.256 (p002-3)
+28 0.245 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 32.6 (-7.18) Only 1 reference! (Unchanged)
+29 0.234 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 32.8 (-7.23) Only 1 reference! (Unchanged)
+30 0.224 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 32.9 (-7.28) Only 1 reference! (Unchanged)
+31 0.215 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 33.1 (-7.32) Only 1 reference! (Unchanged)
+32 0.206 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 33.2 (-7.37) Only 1 reference! (Unchanged)
+33 0.197 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 33.3 (-7.41) Only 1 reference! (Unchanged)
+34 0.189 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 33.5 (-7.45) Only 1 reference! (Unchanged)
+35 0.181 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 33.6 (-7.49) Only 1 reference! (Unchanged)
+36 0.173 (p002-3)
+p003(3) 1986-10-04: 0 -&gt; 27.5 (-7.16)
+p002-2(6) 1986-05-01: 9.1 -&gt; 33.7 (-7.53) Only 1 reference! (Unchanged)
+37 27.517 (p003)
+p002-2(6) 1986-05-01: 9.1 -&gt; 33.8 (-7.47) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 36.1 (-10.9) Only 1 reference! (Unchanged)
+38 9.135 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34 (-7.51) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 36.2 (-10.94) Only 1 reference! (Unchanged)
+39 0.169 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.1 (-7.54) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 36.4 (-10.98) Only 1 reference! (Unchanged)
+40 0.162 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.2 (-7.57) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 36.5 (-11.01) Only 1 reference! (Unchanged)
+41 0.155 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.3 (-7.6) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 36.6 (-11.05) Only 1 reference! (Unchanged)
+42 0.148 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.4 (-7.64) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 36.7 (-11.08) Only 1 reference! (Unchanged)
+43 0.142 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.5 (-7.66) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 36.8 (-11.11) Only 1 reference! (Unchanged)
+44 0.136 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.6 (-7.69) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 36.9 (-11.14) Only 1 reference! (Unchanged)
+45 0.13 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.7 (-7.72) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37 (-11.17) Only 1 reference! (Unchanged)
+46 0.124 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.8 (-7.75) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.1 (-11.2) Only 1 reference! (Unchanged)
+47 0.119 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.8 (-7.77) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.2 (-11.23) Only 1 reference! (Unchanged)
+48 0.114 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 34.9 (-7.79) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.3 (-11.25) Only 1 reference! (Unchanged)
+49 0.109 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35 (-7.82) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.4 (-11.27) Only 1 reference! (Unchanged)
+50 0.104 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.1 (-7.84) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.4 (-11.3) Only 1 reference! (Unchanged)
+51 0.099 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.1 (-7.86) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.5 (-11.32) Only 1 reference! (Unchanged)
+52 0.095 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.2 (-7.88) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.6 (-11.34) Only 1 reference! (Unchanged)
+53 0.091 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.3 (-7.9) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.6 (-11.36) Only 1 reference! (Unchanged)
+54 0.087 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.3 (-7.92) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.7 (-11.38) Only 1 reference! (Unchanged)
+55 0.083 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.4 (-7.93) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.8 (-11.4) Only 1 reference! (Unchanged)
+56 0.079 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.4 (-7.95) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.8 (-11.42) Only 1 reference! (Unchanged)
+57 0.076 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.5 (-7.97) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.9 (-11.43) Only 1 reference! (Unchanged)
+58 0.072 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.6 (-7.98) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 37.9 (-11.45) Only 1 reference! (Unchanged)
+59 0.069 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.6 (-7.99) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 38 (-11.46) Only 1 reference! (Unchanged)
+60 0.066 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.6 (-8.01) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 38 (-11.48) Only 1 reference! (Unchanged)
+61 0.063 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.7 (-8.02) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 38.1 (-11.49) Only 1 reference! (Unchanged)
+62 0.06 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.7 (-8.03) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 38.1 (-11.5) Only 1 reference! (Unchanged)
+63 0.057 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.8 (-8.04) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 38.2 (-11.52) Only 1 reference! (Unchanged)
+64 0.054 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.8 (-8.06) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 38.2 (-11.53) Only 1 reference! (Unchanged)
+65 0.052 (p002-3)
+p002-2(6) 1986-05-01: 9.1 -&gt; 35.8 (-8.07) Only 1 reference! (Unchanged)
+p002-2(6) 1986-10-04: 0 -&gt; 38.3 (-11.54) Only 1 reference! (Unchanged)
+66 0.05 (p002-3)
+Prescribed convergence reached
+
+Last series readjustment (please, be patient...)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+======== End of the missing data infilling process, after 3.53 mins 
+
+----------- Final calculations:
+
+SNHT: Standard normal homogeneity test (on anomaly series)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    5.0     8.1    19.4   101.5   140.2   389.5 
+
+RMSE: Root mean squared error of the estimated data
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  3.205   3.405   3.677   3.615   3.855   3.904 
+
+POD: Percentage of original data
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   2.00   21.50   47.00   49.57   80.50   94.00 
+
+  SNHT  RMSE POD Code   Name     
+1   6.4 3.7  92  p001   Jauja    
+2  19.4 3.2  47  p002   Ingenio  
+3 245.5 3.9  94  p003   Ricran   
+4   9.8 3.5  69  p004   Santa_Ana
+5  35.0 3.9   2  p001-2 Jauja-2  
+6 389.5 3.3  29  p002-2 Ingenio-2
+7   5.0 3.9  14  p002-3 Ingenio-3
+
+Frequency distribution tails of residual anomalies and SNHT:
+
+Left tail of standardized anomalies:
+0.1% 0.2% 0.5%   1%   2%   5%  10% 
+-4.9 -4.2 -3.4 -2.8 -2.1 -1.4 -0.9 
+Right tail of standardized anomalies:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+  0.9   1.6   2.7   3.6   4.7   6.0   6.9 
+Right tail of SNHT on windows of 730 terms with up to 4 references:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+113.6 127.0 135.1 137.7 139.1 139.9 140.2 
+Right tail of SNHT with up to 4 references:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+303.1 346.3 372.2 380.9 385.2 387.8 388.6 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+----------- Generated output files: -------------------------
+
+RR_1986-2017.txt :  Text output of the whole process 
+RR_1986-2017_out.csv :  List of corrected outliers 
+RR_1986-2017_brk.csv :  List of corrected breaks 
+RR_1986-2017.pdf :  Diagnostic graphics 
+RR_1986-2017.rda :  Homogenization results. Postprocess with (examples):</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sprintf(" dahstat('%s',%d,%d) #averages", varcli, anyi, anyf, : one
+argument not used by format ' dahstat('%s',%d,%d) #averages'</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   dahstat('RR',1986,2017) #averages 
+   dahstat('RR',1986,2017,stat='tnd') #OLS trends and p-values 
+   dahgrid('RR',1986,2017,grid=YOURGRID) #homogenized grids 
+   ... (See other options in the package documentation)</code></pre>
+</div>
+</div>
+<p>Debemos revisar el archivo “***_out.csv” para identificar aquellos valores identificados como atípicos pero que se considerarían correctos. En base a ello, volveremos a correr el código definiendo un umbral de desviaciones estándar que permita utilizar o descartar los valores</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">homogen</span>(<span class="st">'RR'</span>,<span class="dv">1986</span>,<span class="dv">2017</span>,<span class="at">annual=</span><span class="st">"total"</span>, <span class="at">metad =</span> <span class="cn">TRUE</span>, <span class="at">dz.max =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+HOMOGEN() APPLICATION OUTPUT  (From R's contributed package 'climatol' 4.0.0)
+
+=========== Homogenization of RR, 1986-2017. (Fri Dec 22 09:40:09 2023)
+
+Parameters: varcli=RR, anyi=1986, anyf=2017, test=snht, nref=10 10 4, std=NA, swa=NA, ndec=1, niqd=3, dz.max=8, dz.min=-8, cumc=NA, wd=0 0 100, inht=0 0, sts=5, maxdif=0.05, maxite=999, force=FALSE, wz=0.001, mindat=NA, onlyQC=FALSE, annual=sum, ini=NA, na.strings=NA, vmin=NA, vmax=NA, hc.method=ward.D2, nclust=300, cutlev=NA, grdcol=#666666, mapcol=#666666, expl=FALSE, metad=TRUE, sufbrk=m, tinc=NA, tz=utc, rlemin=NA, rlemax=NA, cex=1.1, uni=NA, raway=TRUE, graphics=TRUE, verb=TRUE, logf=TRUE, snht1=NA, snht2=NA, gp=NA
+
+Data matrix: 11688 data x 4 stations</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+-------------------------------------------
+Stations in the 2 clusters:
+
+$`1`
+[1] 1
+
+$`2`
+[1] 2 3 4
+
+---------------------------------------------</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Computing inter-station distances ...  1  2  3
+
+Splitting the series following the metadata file...:
+
+p001(1) breaks at 1987-02-01
+p002(2) breaks at 1996-06-01
+p002(2) breaks at 2001-04-01
+
+Update number of series:  4 + 3 = 7 
+
+
+
+========== STAGE 3 (Final calculation of all missing data) ==========
+
+Computing inter-station weights... (done)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Calculation of missing data with outlier removal
+(Suggested data replacements are provisional)
+
+The following lines will have one of these formats:
+  Station(rank) Date: Observed -&gt; Suggested (Anomaly, in std. devs.)
+  Iteration Max_data_difference (Station_code)
+p001(1) 1987-03-08: 36.5 -&gt; 3.9 (8.79)
+p001(1) 1988-02-11: 40.8 -&gt; 5.9 (9.42)
+p001(1) 1991-03-07: 32 -&gt; 1.7 (8.16) Only 1 reference! (Unchanged)
+p001(1) 1997-12-25: 0.7 -&gt; 30.5 (-8.04)
+p001(1) 1997-12-26: 48.2 -&gt; 5.6 (11.48)
+p001(1) 2005-02-27: 34.4 -&gt; 4 (8.2)
+p001(1) 2009-04-12: 32.7 -&gt; 2 (8.27)
+p001(1) 2009-12-24: 35.8 -&gt; 2.3 (9.03)
+p001(1) 2012-11-01: 41.2 -&gt; 4.3 (9.96)
+p001(1) 2014-03-04: 34.9 -&gt; 1 (9.14)
+p002(2) 2004-03-25: 38.6 -&gt; 3 (11.11)
+p002(2) 2007-02-27: 36.3 -&gt; 4.1 (10.06)
+p002(2) 2009-12-26: 36.3 -&gt; 9.9 (8.25)
+p002(2) 2012-12-08: 36.9 -&gt; 9.3 (8.64)
+p002(2) 2013-05-04: 27.9 -&gt; 0.2 (8.65)
+p003(3) 1986-01-09: 0 -&gt; 35.7 (-9.2)
+p003(3) 2012-01-04: 40.8 -&gt; 0.4 (10.43)
+p004(4) 1995-12-22: 36.6 -&gt; 6 (8.78)
+p004(4) 1998-02-24: 31.5 -&gt; 2.6 (8.3)
+p004(4) 2008-10-17: 39 -&gt; 3.1 (10.31)
+p002-2(6) 1986-01-04: 31.5 -&gt; 0 (8.17)
+p002-2(6) 1986-01-05: 50 -&gt; 2.5 (12.31)
+p002-2(6) 1986-01-06: 40.7 -&gt; 2.9 (9.81)
+p002-2(6) 1986-01-07: 51.2 -&gt; 0 (13.26)
+p002-2(6) 1986-01-08: 51 -&gt; 3.5 (12.31)
+p002-2(6) 1986-01-10: 40.2 -&gt; 3 (9.64)
+p002-2(6) 1986-01-11: 50.9 -&gt; 0.5 (13.07)
+p002-2(6) 1986-01-12: 40 -&gt; 2.4 (9.74)
+p002-3(7) 1997-12-25: 54 -&gt; 20.2 (8.68)
+p001(1) 1991-03-07: 32 -&gt; 1.8 (8.5) Only 1 reference! (Unchanged)
+p001(1) 2007-03-28: 30 -&gt; 1.2 (8.11)
+p002(2) 2003-03-07: 37.1 -&gt; 12.6 (8.03)
+p002-2(6) 1986-01-13: 29.6 -&gt; 1.3 (8.99)
+p002-2(6) 1991-03-07: 1.6 -&gt; 28.6 (-8.47) Only 1 reference! (Unchanged)
+2 28.828 (p001)
+p001(1) 1991-03-07: 32 -&gt; 1.8 (8.53) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 28 (-8.44) Only 1 reference! (Unchanged)
+3 14.469 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 1.9 (8.52) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 27.4 (-8.33) Only 1 reference! (Unchanged)
+4 0.803 (p002-2)
+p001(1) 1991-03-07: 32 -&gt; 1.9 (8.51) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 26.9 (-8.24) Only 1 reference! (Unchanged)
+5 0.716 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 1.9 (8.5) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 26.6 (-8.17) Only 1 reference! (Unchanged)
+6 0.654 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 1.9 (8.5) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 26.3 (-8.11) Only 1 reference! (Unchanged)
+7 0.598 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.49) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 26.1 (-8.06) Only 1 reference! (Unchanged)
+8 0.547 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.49) Only 1 reference! (Unchanged)
+p002-2(6) 1991-03-07: 1.6 -&gt; 25.9 (-8.02) Only 1 reference! (Unchanged)
+9 0.501 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.49) Only 1 reference! (Unchanged)
+10 0.461 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.48) Only 1 reference! (Unchanged)
+11 0.424 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.48) Only 1 reference! (Unchanged)
+12 0.392 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.48) Only 1 reference! (Unchanged)
+13 0.363 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.48) Only 1 reference! (Unchanged)
+14 0.337 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.48) Only 1 reference! (Unchanged)
+15 0.313 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.47) Only 1 reference! (Unchanged)
+16 0.292 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.47) Only 1 reference! (Unchanged)
+17 0.273 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.47) Only 1 reference! (Unchanged)
+18 0.256 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.47) Only 1 reference! (Unchanged)
+19 0.241 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.47) Only 1 reference! (Unchanged)
+20 0.226 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.47) Only 1 reference! (Unchanged)
+21 0.213 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.47) Only 1 reference! (Unchanged)
+22 0.201 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2 (8.47) Only 1 reference! (Unchanged)
+23 0.19 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.47) Only 1 reference! (Unchanged)
+24 0.18 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.47) Only 1 reference! (Unchanged)
+25 0.171 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.47) Only 1 reference! (Unchanged)
+26 0.162 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.47) Only 1 reference! (Unchanged)
+27 0.154 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.47) Only 1 reference! (Unchanged)
+28 0.146 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.47) Only 1 reference! (Unchanged)
+29 0.139 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.47) Only 1 reference! (Unchanged)
+30 0.133 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+31 0.126 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+32 0.12 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+33 0.115 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+34 0.109 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+35 0.104 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+36 0.1 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+37 0.095 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+38 0.091 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+39 0.087 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+40 0.083 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+41 0.079 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+42 0.076 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+43 0.073 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+44 0.069 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+45 0.066 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+46 0.063 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+47 0.061 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+48 0.058 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+49 0.055 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+50 0.053 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+51 0.051 (p002-3)
+p001(1) 1991-03-07: 32 -&gt; 2.1 (8.46) Only 1 reference! (Unchanged)
+52 0.048 (p002-3)
+Prescribed convergence reached
+
+Last series readjustment (please, be patient...)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+======== End of the missing data infilling process, after 2.69 mins 
+
+----------- Final calculations:
+
+SNHT: Standard normal homogeneity test (on anomaly series)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   4.00    7.75   10.20   73.14  115.20  251.90 
+
+RMSE: Root mean squared error of the estimated data
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  2.988   3.236   3.500   3.448   3.677   3.824 
+
+POD: Percentage of original data
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   2.00   21.50   47.00   49.57   80.50   94.00 
+
+  SNHT  RMSE POD Code   Name     
+1   8.0 3.5  92  p001   Jauja    
+2  20.8 3.0  47  p002   Ingenio  
+3 209.6 3.8  94  p003   Ricran   
+4  10.2 3.4  69  p004   Santa_Ana
+5   7.5 3.5   2  p001-2 Jauja-2  
+6 251.9 3.0  29  p002-2 Ingenio-2
+7   4.0 3.8  14  p002-3 Ingenio-3
+
+Frequency distribution tails of residual anomalies and SNHT:
+
+Left tail of standardized anomalies:
+0.1% 0.2% 0.5%   1%   2%   5%  10% 
+-4.7 -4.2 -3.4 -2.7 -2.1 -1.4 -0.9 
+Right tail of standardized anomalies:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+  0.9   1.7   2.8   3.7   4.7   5.9   6.7 
+Right tail of SNHT on windows of 730 terms with up to 4 references:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+ 91.4  98.7 103.1 104.5 105.3 105.7 105.8 
+Right tail of SNHT with up to 4 references:
+  90%   95%   98%   99% 99.5% 99.8% 99.9% 
+226.5 239.2 246.8 249.4 250.6 251.4 251.6 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+----------- Generated output files: -------------------------
+
+RR_1986-2017.txt :  Text output of the whole process 
+RR_1986-2017_out.csv :  List of corrected outliers 
+RR_1986-2017_brk.csv :  List of corrected breaks 
+RR_1986-2017.pdf :  Diagnostic graphics 
+RR_1986-2017.rda :  Homogenization results. Postprocess with (examples):</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in sprintf(" dahstat('%s',%d,%d) #averages", varcli, anyi, anyf, : one
+argument not used by format ' dahstat('%s',%d,%d) #averages'</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   dahstat('RR',1986,2017) #averages 
+   dahstat('RR',1986,2017,stat='tnd') #OLS trends and p-values 
+   dahgrid('RR',1986,2017,grid=YOURGRID) #homogenized grids 
+   ... (See other options in the package documentation)</code></pre>
+</div>
+</div>
+<p>Exportando resultados en formato <strong>*.csv</strong> empleando el comando <code>dahstat</code>. Esto generará un archivo “Var_anyi-anyf_series.csv”</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dahstat</span>(<span class="st">"RR"</span>,<span class="dv">1986</span>, <span class="dv">2017</span>,<span class="at">stat =</span> <span class="st">"series"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Homogenized values written to RR_1986-2017_series.csv,
+with flags in RR_1986-2017_flags.csv:
+  0: Observed data
+  1: Missing data (filled in)
+  2: Corrected data</code></pre>
+</div>
+</div>
 </section>
 </section>
 
